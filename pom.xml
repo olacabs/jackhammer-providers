@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.olacabs.jackhammer.providers</groupId>
+	<artifactId>provider-collection</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>provider-collection</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.olacabs.jch.sdk</groupId>
+			<artifactId>jch-sdk</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+		  <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.11</version>
+        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<modules>
+		<module>brakeman-provider</module>
+		<module>wp-scan-provider</module>
+		<module>retirejs-provider</module>
+		<module>nsp-provider</module>
+		<module>nmap-provider</module>
+		<module>dawn-scanner-provider</module>
+		<module>arachni-provider</module>
+		<module>andro-scan-provider</module>
+		<module>findsecbug-provider</module>
+    <module>xanitizer-provider</module>
+    <module>bundle-audit-provider</module>
+  </modules>
+</project>
