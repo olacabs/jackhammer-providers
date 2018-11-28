@@ -1,4 +1,4 @@
-ckhammer Providers 
+## Jackhammer Providers
   Tools integration with jackhammer
 
 ## Provider Features
