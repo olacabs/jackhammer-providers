@@ -1,0 +1,11 @@
+language: java
+install: mvn --settings .maven.xml clean install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
+jdk:
+  - openjdk8
+on:
+  branch: master
+deploy:
+  provider: script              
+  script: bash docker_push.sh           
+  on:
+    branch: master
