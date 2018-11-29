@@ -77,4 +77,4 @@ docker push $DOCKER_USERNAME/findsecbug-provider
 #docker build -t xanitizer-provider .
 #docker tag xanitizer-provider $DOCKER_USERNAME/xanitizer-provider
 #docker push $DOCKER_USERNAME/xanitizer-provider
-jackhammer Providers 
+#jackhammer Providers 
