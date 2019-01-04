@@ -24,6 +24,7 @@ public class ScanController implements ScanSpi {
         File tempFile = null;
         try {
             tempFile = File.createTempFile(Constants.TEMP_FILE_PREFIX, Constants.TEMP_FILE_SUFFIX);
+            scanRequest.setResultFile(tempFile);
             Process process;
             process = npmInstallBuilder.start();
             process.waitFor();
@@ -34,7 +35,6 @@ public class ScanController implements ScanSpi {
         } catch (Exception e) {
             log.error("Exception while running nmap command",e);
         }
-        scanRequest.setResultFile(tempFile);
         builder.command(Constants.RETIRE_CMD,Constants.ARG_C_OPTION,Constants.ARG_OUTPUT_FORMAT,Constants.JSON,Constants.ARG_PATH,scanRequest.getTarget(),Constants.ARG_OUTPUT_PATH,tempFile.getAbsolutePath());
         builder.redirectError(new File(envs.get(Constants.SCAN_ERROR_LOG_PATH)));
         return builder;
