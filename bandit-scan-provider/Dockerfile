@@ -31,7 +31,7 @@ COPY scripts/BanditPreDeploy.sh $WORKSPACE/scripts/
 COPY scripts/BanditDeploy.sh $WORKSPACE/scripts/
 
 #sdk files
-COPY JchSDK.jar $WORKSPACE
+#COPY JchSDK.jar $WORKSPACE
 COPY config.yml $WORKSPACE
 
 #working dir
