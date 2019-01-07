@@ -10,7 +10,7 @@
       "portMappings": [
 	      { "containerPort": 8080, "hostPort": 0,"protocol": "tcp" }
       ]
-    },
+    }
   },
   "mem": 2048,
   "healthChecks": [{
