@@ -7,11 +7,8 @@ import com.olacabs.jch.sdk.models.ScanResponse;
 import com.olacabs.jch.sdk.spi.ResultParserSpi;
 import com.olacabs.jch.services.retirejs.common.Constants;
 import com.olacabs.jch.services.retirejs.common.ExceptionMessages;
-import com.olacabs.jch.services.retirejs.models.FindingResult;
-import com.olacabs.jch.services.retirejs.models.Identifier;
-import com.olacabs.jch.services.retirejs.models.ParsedFinding;
+import com.olacabs.jch.services.retirejs.models.*;
 
-import com.olacabs.jch.services.retirejs.models.Vulnerabilitiy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +25,8 @@ public class ResultParserController implements ResultParserSpi {
         ObjectMapper mapper = new ObjectMapper();
         List<Finding> findingList = new ArrayList<Finding>();
         try {
-            ParsedFinding[] parsedFindings = mapper.readValue(new FileReader(scanResponse.getResultFile().getAbsoluteFile()), ParsedFinding[].class);
-            for (ParsedFinding parsedFinding : parsedFindings) {
+            ScanResult scanResult = mapper.readValue(new FileReader(scanResponse.getResultFile().getAbsoluteFile()), ScanResult.class);
+            for (ParsedFinding parsedFinding : scanResult.getData()) {
                 String file = parsedFinding.getFile();
                 FindingResult findingResult = parsedFinding.getResults().get(0);
                 List<Vulnerabilitiy> vulnerabilitiyList = findingResult.getVulnerabilities();
@@ -57,6 +54,10 @@ public class ResultParserController implements ResultParserSpi {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.SCAN_RESULT_FILE_NOT_FOUND);
             log.error("Result file could not find", io);
+        } catch (Exception e) {
+            log.error("Exception while parsing results", e);
+            scanResponse.setStatus(Constants.FAILED_STATUS);
+            scanResponse.setFailedReasons(ExceptionMessages.PARSING_EXCEPTION);
         }
         return scanResponse;
     }

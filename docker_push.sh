@@ -72,6 +72,13 @@ docker build -t findsecbug-provider .
 docker tag findsecbug-provider $DOCKER_USERNAME/findsecbug-provider
 docker push $DOCKER_USERNAME/findsecbug-provider
 
+#pushing bandit-scan-provider
+cd ../bandit-scan-provider
+mvn clean install
+docker build -t bandit-provider .
+docker tag bandit-provider $DOCKER_USERNAME/bandit-provider
+docker push $DOCKER_USERNAME/bandit-provider
+
 #pushing xanitizer
 #cd ../xanitizer-provider
 #docker build -t xanitizer-provider .

@@ -43,7 +43,8 @@
 		<module>arachni-provider</module>
 		<module>andro-scan-provider</module>
 		<module>findsecbug-provider</module>
-    <module>xanitizer-provider</module>
-    <module>bundle-audit-provider</module>
+    	<module>xanitizer-provider</module>
+    	<module>bundle-audit-provider</module>
+		<module>bandit-scan-provider</module>
   </modules>
 </project>
