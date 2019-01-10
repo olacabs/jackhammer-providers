@@ -1,6 +1,6 @@
 {
   "id": "jackhammer/andro",
-  "cpus": 1.0,
+  "cpus": 1,
   "instances": 1,
   "container": {
     "type": "DOCKER",
@@ -8,27 +8,35 @@
       "image": "jackhammer/andro-scan-provider",
       "network": "BRIDGE",
       "portMappings": [
-	      { "containerPort": 8080, "hostPort": 0,"protocol": "tcp" }
+        {
+          "containerPort": 8080,
+          "hostPort": 0,
+          "protocol": "tcp"
+        }
       ]
-    },
-  },
-  "mem": 2048,
-  "healthChecks": [{
-	"protocol": "COMMAND",
-	"command": {"value": "curl -f -X GET http://$HOST:8080/admin/healthcheck"},
-	"gracePeriodSeconds": 300,
-	"intervalSeconds": 60,
-	"timeoutSeconds": 20,
-	"maxConsecutiveFailures": 3,
-	"ignoreHttp1xx": false
-  }],
-    "env": {
-	     "SUPPORTED_PLATFORM": "Mobile",
-	     "MAX_ALLOWED_SCANS": 5,
-	     "S3_ACCESS_KEY": "S3_ACCESS_KEY", 
-             "S3_SECRET_KEY": "S3_SECRET_KEY",
-             "S3_BUCKET": "S3_BUCKET",
-             "S3_REGION": "S3_REGION",
-	     "localSetup": "true"
     }
+  },
+  "mem": 4096,
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "curl -f -X GET http://127.0.0.1:8080/admin/healthcheck"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "env": {
+    "SUPPORTED_PLATFORM": "Mobile",
+    "MAX_ALLOWED_SCANS": "5",
+    "S3_ACCESS_KEY": "S3_ACCESS_KEY",
+    "S3_SECRET_KEY": "S3_SECRET_KEY",
+    "S3_BUCKET": "your-s3-bucket",
+    "S3_REGION": "bucket-region",
+    "localSetup": "true"
+  }
 }

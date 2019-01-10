@@ -17,6 +17,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -50,6 +51,13 @@ public class ResultParserController implements ResultParserSpi {
     }
 
     private Finding buildFindingRecord(ParsedFinding parsedFinding) {
+        String fileName = parsedFinding.getFilename();
+        if (fileName!=null && fileName.contains(Constants.TEMP_COMMON_PREFIX)) {
+            String[] filePath = fileName.split(Constants.FILE_SEPARATOR);
+            String[] relativePath =  Arrays.copyOfRange(filePath, 3, filePath.length);
+            fileName = String.join(Constants.FILE_SEPARATOR,relativePath);
+            parsedFinding.setFilename(fileName);
+        }
         Finding finding = new Finding();
         finding.setDescription(parsedFinding.getIssue_text());
         finding.setTitle(parsedFinding.getTest_name());
