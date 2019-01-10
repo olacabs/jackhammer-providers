@@ -14,7 +14,8 @@ public class Constants {
     public static final String OUTPUT_FILE_FORMAT_CMD = "--format";
     public static final String OUTPUT_FILE_FORMAT = "json";
     public static final String FIND_AND_PROCESS_FILES_IN_SUBDIRECTORIES = "-r";
-
+    public static final String TEMP_COMMON_PREFIX = "/tmp/jackhammer";
+    public static final String FILE_SEPARATOR = "/";
 
     //pre deploy
     public static final String BANDIT_PRE_DEPLOY_SCRIPT_PATH = "BANDIT_PRE_DEPLOY_SCRIPT_PATH";
