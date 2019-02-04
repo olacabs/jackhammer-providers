@@ -1,5 +1,14 @@
 #pulling jdk image
-FROM openjdk:8
+FROM ubuntu:18.04
+
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && apt-get install -y git \
+    && apt-get install -y iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update
+RUN apt-get install -y openjdk-8-jdk
+
 #FROM openjdk:8i
 
 #xanitizer scripts, logs and provider directories
@@ -40,7 +49,8 @@ ENV FIND_SEC_BUGS_INSTALLED_PATH $WORKSPACE/scripts/cli_script/spotbugs-3.1.7/bi
 COPY scripts/FindSecBugsPreDeploy.sh $WORKSPACE/scripts/
 COPY scripts/FindSecBugsDeploy.sh $WORKSPACE/scripts/
 COPY scripts/FindSecBugsPostDeploy.sh $WORKSPACE/scripts/
-
+#host setup
+COPY scripts/docker-host.sh $WORKSPACE/scripts/
 #setting file
 
 COPY settings.xml /root/.m2/

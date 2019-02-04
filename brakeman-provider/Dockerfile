@@ -1,5 +1,13 @@
 #pulling jdk image
-FROM openjdk:8
+FROM ubuntu:18.04
+
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && apt-get install -y git \
+    && apt-get install -y iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update
+RUN apt-get install -y openjdk-8-jdk
 
 #brakeman logs and provider directories
 RUN /bin/bash -c "mkdir -p /home/src/brakeman/"
@@ -29,7 +37,8 @@ COPY config.yml $WORKSPACE
 #installation scripts
 COPY scripts/BrakemanPreDeploy.sh $WORKSPACE/scripts/
 COPY scripts/BrakemanDeploy.sh $WORKSPACE/scripts/
-
+#host setup
+COPY scripts/docker-host.sh $WORKSPACE/scripts/
 #working dir
 WORKDIR $WORKSPACE
 

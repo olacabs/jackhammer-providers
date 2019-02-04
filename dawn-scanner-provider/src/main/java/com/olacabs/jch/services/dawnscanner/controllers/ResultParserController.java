@@ -1,5 +1,6 @@
 package com.olacabs.jch.services.dawnscanner.controllers;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.olacabs.jch.sdk.models.Finding;
@@ -13,6 +14,7 @@ import com.olacabs.jch.services.dawnscanner.models.ScanResult;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -37,6 +39,14 @@ public class ResultParserController implements ResultParserSpi {
             scanResponse.setStatus(Constants.COMPLETED_STATUS);
             scanResponse.getResultFile().delete();
             scanResponse.setResultFile(null);
+        } catch (JsonMappingException jsonMappingException) {
+            if (StringUtils.equals(jsonMappingException.getMessage(), ExceptionMessages.NO_CONTENT_MESSAGE)) {
+                scanResponse.setStatus(Constants.COMPLETED_STATUS);
+            } else {
+                scanResponse.setStatus(Constants.FAILED_STATUS);
+                scanResponse.setFailedReasons(ExceptionMessages.PARSING_EXCEPTION);
+                log.error("Exception while parsing retire results", jsonMappingException);
+            }
         } catch (IOException io) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.SCAN_RESULT_FILE_NOT_FOUND);

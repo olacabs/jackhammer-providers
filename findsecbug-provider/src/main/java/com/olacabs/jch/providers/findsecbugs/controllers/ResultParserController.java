@@ -43,18 +43,29 @@ public class ResultParserController implements ResultParserSpi {
             scanResponse.getResultFile().delete();
             scanResponse.setResultFile(null);
         } catch (SAXException sae) {
-            scanResponse.setStatus(Constants.FAILED_STATUS);
-            scanResponse.setFailedReasons(ExceptionMessages.SAX_EXCEPTION);
-            log.error("SAXException while parsing findSecBugs results",sae);
+            if(scanResponse.getResultFile().length() == 0) {
+                scanResponse.setStatus(Constants.COMPLETED_STATUS);
+                log.error("SAXException while parsing findSecBugs results", sae);
+                log.error("resulting file size... {} {}", scanResponse.getResultFile().length());
+            } else {
+                scanResponse.setStatus(Constants.FAILED_STATUS);
+                scanResponse.setFailedReasons(ExceptionMessages.SAX_EXCEPTION);
+                log.error("SAXException while parsing findSecBugs results", sae);
+                log.error("resulting file size... {} {}", scanResponse.getResultFile().length());
+            }
         } catch (IOException io) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.RESULT_FILE_NOT_FOUND);
             log.error("IOException while parsing findSecBugs results",io);
+            log.error("resulting file size... {} {}",scanResponse.getResultFile().length());
         }  catch (ParserConfigurationException pce) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.PARSER_CONFIGURATION_EXCEPTION);
             log.error("ParserConfigurationException while parsing findSecBugs results",pce);
+            log.error("resulting file size... {} {}",scanResponse.getResultFile().length());
         }
+        if(scanResponse.getResultFile()!=null && scanResponse.getResultFile().exists()) scanResponse.getResultFile().delete();
+        scanResponse.setResultFile(null);
         scanResponse.setFindings(findingList);
         return scanResponse;
     }

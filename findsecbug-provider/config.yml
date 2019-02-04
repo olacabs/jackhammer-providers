@@ -6,7 +6,7 @@ server:
     port: 8080
 websocketClientConfiguration:
   serverHost: http://your-server-host #configure server host 
-  localServer: ws://docker.for.mac.localhost:8081
+  localServer: ws://host.docker.internal:8081
   threadPoolSize: 5 # 5 threads
   initialDelay: 30 # 0 seconds delay on startup
   period: 30 #seconds

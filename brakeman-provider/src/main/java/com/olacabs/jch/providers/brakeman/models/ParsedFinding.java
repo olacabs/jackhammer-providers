@@ -21,10 +21,9 @@ public class ParsedFinding {
     private String line;
     private String link;
     private String code;
-    private List<HashMap<String,String>> render_path;
+    private List<HashMap<String,Object>> render_path;
     private String user_input;
     private String confidence;
     private int warning_code;
     private HashMap<String,String> location;
-
 }
