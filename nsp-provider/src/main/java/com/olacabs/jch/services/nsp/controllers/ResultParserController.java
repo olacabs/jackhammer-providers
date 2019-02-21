@@ -1,5 +1,6 @@
 package com.olacabs.jch.services.nsp.controllers;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.olacabs.jch.sdk.models.Finding;
@@ -11,6 +12,7 @@ import com.olacabs.jch.services.nsp.common.ExceptionMessages;
 import com.olacabs.jch.services.nsp.models.ParsedFinding;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,6 +35,14 @@ public class ResultParserController implements ResultParserSpi {
             scanResponse.setStatus(Constants.COMPLETED_STATUS);
             scanResponse.getResultFile().delete();
             scanResponse.setResultFile(null);
+        } catch (JsonMappingException jsonMappingException) {
+            if (StringUtils.equals(jsonMappingException.getMessage(), ExceptionMessages.NO_CONTENT_MESSAGE)) {
+                scanResponse.setStatus(Constants.COMPLETED_STATUS);
+            } else {
+                scanResponse.setStatus(Constants.FAILED_STATUS);
+                scanResponse.setFailedReasons(ExceptionMessages.PARSING_EXCEPTION);
+                log.error("Exception while parsing nsp results", jsonMappingException);
+            }
         } catch (IOException io) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.SCAN_RESULT_FILE_NOT_FOUND);
@@ -63,7 +73,7 @@ public class ResultParserController implements ResultParserSpi {
     }
 
     private String getFingerPrint(Finding finding) {
-        StringBuilder  fingerPrint = new StringBuilder();
+        StringBuilder fingerPrint = new StringBuilder();
         fingerPrint.append(Constants.PROVIDER_NAME);
         fingerPrint.append(finding.getTitle());
         fingerPrint.append(finding.getDescription());

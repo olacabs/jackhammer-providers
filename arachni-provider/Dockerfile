@@ -1,13 +1,14 @@
 #pulling jdk image
 FROM ubuntu:18.04
   
-RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
-    && apt-get install -y git \
-    && apt-get install -y iproute2 \
+    && apt-get install -y --no-install-recommends git \
+    && apt-get install -y --no-install-recommends iproute2 \
+    && apt-get install -y --no-install-recommends openjdk-8-jdk \
     && rm -rf /var/lib/apt/lists/*
-RUN apt-get update 
-RUN apt-get install -y openjdk-8-jdk
+#RUN apt-get update 
+#RUN apt-get install -y openjdk-8-jdk
 
 #provider
 ENV TOOL_NAME "Arachni"
