@@ -26,32 +26,18 @@ public class ResultParserController implements ResultParserSpi {
         log.info("result file {} {}", scanResponse.getResultFile().getAbsoluteFile());
         log.info("result file size {} {}", scanResponse.getResultFile().getAbsoluteFile().length());
         List<Finding> findingList = new ArrayList<Finding>();
-        StringBuilder sb = new StringBuilder();
 
         try {
-            BufferedReader objReader = null;
-            try {
-                String strCurrentLine;
-                objReader = new BufferedReader(new FileReader(scanResponse.getResultFile().getAbsoluteFile()));
-                while ((strCurrentLine = objReader.readLine()) != null) {
-                    sb.append(strCurrentLine);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (objReader != null)
-                        objReader.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-//            ScanResult scanResult = objectMapper.readValue(new FileReader(scanResponse.getResultFile().getAbsoluteFile()), ScanResult.class);
-            ScanResult scanResult = objectMapper.readValue(sb.toString().replace(" +"," ").replace("\t"," "), ScanResult.class);
+
+            ScanResult scanResult = objectMapper.readValue(new FileReader(scanResponse.getResultFile().getAbsoluteFile()), ScanResult.class);
             for (ParsedFinding parsedFinding : scanResult.getFoundIssues()) {
-                log.info("parsed findings reading ...{} {}",parsedFinding.getStringsFound().size());
-                Finding finding = buildDetailFindingRecord(parsedFinding);
-                findingList.add(finding);
+                log.info("parsed findings reading ...{} {}", parsedFinding.getStringsFound().size());
+                try {
+                    Finding finding = buildDetailFindingRecord(parsedFinding);
+                    findingList.add(finding);
+                } catch (Exception e) {
+                    log.error("Error while building finding obj..{}..{}", e);
+                }
             }
             scanResponse.setFindings(findingList);
             scanResponse.getResultFile().delete();
@@ -77,10 +63,10 @@ public class ResultParserController implements ResultParserSpi {
         Finding finding = new Finding();
         String severity = Constants.HIGH;
         finding.setTitle(parsedFinding.getReason());
-        finding.setDescription("Keys Found: " + StringUtils.join(parsedFinding.getStringsFound(), ",").substring(0, 2000));
+        finding.setDescription("Keys Found: " + getFoundStrings(parsedFinding));
         finding.setSeverity(severity);
         finding.setToolName(Constants.PROVIDER_NAME);
-        finding.setLocation("Branch: " + parsedFinding.getBranch() + ",Commit Hash: " + parsedFinding.getCommitHash() + ",Commit Date: " + parsedFinding.getDate());
+        finding.setLocation(getLocation(parsedFinding));
         finding.setFileName(parsedFinding.getPath());
         finding.setFingerprint(getFingerPrint(parsedFinding));
         return finding;
@@ -91,13 +77,29 @@ public class ResultParserController implements ResultParserSpi {
         fingerprint.append(parsedFinding.getBranch());
         fingerprint.append(parsedFinding.getCommitHash());
         fingerprint.append(parsedFinding.getCommit());
-        fingerprint.append(parsedFinding.getStringsFound());
+        fingerprint.append(getFoundStrings(parsedFinding));
         fingerprint.append(parsedFinding.getDate());
         fingerprint.append(parsedFinding.getPath());
         fingerprint.append(Constants.PROVIDER_NAME);
         return DigestUtils.sha256Hex(fingerprint.toString());
     }
 
+    public String getLocation(ParsedFinding parsedFinding) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (parsedFinding.getBranch() != null) stringBuilder.append("Branch: " + parsedFinding.getBranch());
+        if (parsedFinding.getCommitHash() != null) stringBuilder.append(" Commit Hash:" + parsedFinding.getCommitHash());
+        if (parsedFinding.getDate() != null) stringBuilder.append(" Commit Date:" + parsedFinding.getDate());
+        return stringBuilder.toString();
+    }
+
+    public String getFoundStrings(ParsedFinding parsedFinding) {
+        if (parsedFinding.getStringsFound() == null || parsedFinding.getStringsFound().size() == 0)
+            return StringUtils.EMPTY;
+        String stringsFound = StringUtils.join(parsedFinding.getStringsFound(), ",");
+        if (stringsFound.length() < 2001)
+            return stringsFound;
+        return stringsFound.substring(0, 2000);
+    }
 
     public String getToolName() {
         return Constants.PROVIDER_NAME;
