@@ -17,4 +17,5 @@ public class Vulnerabilitiy {
     private String severity;
     private Identifier identifiers;
     private String below;
+    private String atOrAbove;
 }

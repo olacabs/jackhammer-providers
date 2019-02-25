@@ -47,7 +47,8 @@ public class ScanController implements ScanSpi {
             //build scan cmd
             File tempFile = File.createTempFile(Constants.TEMP_FILE_PREFIX, Constants.TEMP_FILE_SUFFIX);
             builder.command(Constants.BASH_PATH, Constants.CLI_SCRIPT_CMD, Constants.EFFORT_MAX_ARG, Constants.QUIET_ARG,
-                    Constants.XML_WITH_MESSAGES_ARG, Constants.OUTPUT_ARG, tempFile.getAbsolutePath(), Constants.TEXT_UI, scanRequest.getTarget());
+                    Constants.XML_WITH_MESSAGES_ARG, Constants.OUTPUT_ARG, tempFile.getAbsolutePath(), Constants.BUG_CATEGORIES_ARG,
+                    Constants.BUG_CATEGORIES_ARG_VAL,Constants.TEXT_UI, scanRequest.getTarget());
             //set scan result file
             scanRequest.setResultFile(tempFile);
         } catch (IOException io) {

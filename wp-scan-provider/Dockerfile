@@ -1,5 +1,14 @@
 #pulling jdk image
-FROM openjdk:8
+FROM ubuntu:18.04
+
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && apt-get install -y git \
+    && apt-get install -y iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update
+RUN apt-get install -y openjdk-8-jdk
+
 
 #provider
 ENV TOOL_NAME "WpScan"
@@ -29,7 +38,8 @@ ENV SCAN_OUT_PUT_LOG_PATH $WORKSPACE/logs/scan_output.log
 #installation scripts
 COPY scripts/WpScanPreDeploy.sh $WORKSPACE/scripts/
 COPY scripts/WpScanDeploy.sh $WORKSPACE/scripts/
-
+#host setup
+COPY scripts/docker-host.sh $WORKSPACE/scripts/
 #sdk files
 #COPY JchSDK.jar $WORKSPACE
 COPY config.yml $WORKSPACE

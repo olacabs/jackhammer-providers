@@ -1,5 +1,9 @@
 #!/bin/bash
 apt-get -y update
+apt-get -y update --fix-missing
+#setup host ip
+sh $WORKSPACE/scripts/docker-host.sh
+
 apt-get install -y git wget unzip
 cd /home/src/findsecbugs/scripts/cli_script
 #wget http://repo.maven.apache.org/maven2/com/github/spotbugs/spotbugs/3.1.7/spotbugs-3.1.7.zip

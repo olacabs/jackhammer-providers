@@ -79,6 +79,12 @@ docker build -t bandit-provider .
 docker tag bandit-provider $DOCKER_USERNAME/bandit-provider
 docker push $DOCKER_USERNAME/bandit-provider
 
+cd ../trufflehog-provider
+mvn clean install
+docker build -t truffle-hog-provider .
+docker tag truffle-hog-provider $DOCKER_USERNAME/truffle-hog-provider
+docker push $DOCKER_USERNAME/truffle-hog-provider
+
 #pushing xanitizer
 #cd ../xanitizer-provider
 #docker build -t xanitizer-provider .

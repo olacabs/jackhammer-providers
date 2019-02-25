@@ -38,9 +38,16 @@ public class ResultParserController implements ResultParserSpi {
             scanResponse.getResultFile().delete();
             scanResponse.setResultFile(null);
         } catch (SAXException sae) {
-            scanResponse.setStatus(Constants.FAILED_STATUS);
-            scanResponse.setFailedReasons(ExceptionMessages.SAX_EXCEPTION);
-            log.error("SAXException while parsing arachni results", sae);
+            if(scanResponse.getResultFile().length() == 0) {
+                scanResponse.setStatus(Constants.COMPLETED_STATUS);
+                log.error("SAXException while parsing findSecBugs results", sae);
+                log.error("resulting file size... {} {}", scanResponse.getResultFile().length());
+            } else {
+                scanResponse.setStatus(Constants.FAILED_STATUS);
+                scanResponse.setFailedReasons(ExceptionMessages.SAX_EXCEPTION);
+                log.error("SAXException while parsing findSecBugs results", sae);
+                log.error("resulting file size... {} {}", scanResponse.getResultFile().length());
+            }
         } catch (IOException io) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.RESULT_FILE_NOT_FOUND);

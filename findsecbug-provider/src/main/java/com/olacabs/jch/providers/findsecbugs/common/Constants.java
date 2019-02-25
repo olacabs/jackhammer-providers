@@ -28,6 +28,8 @@ public class Constants {
     public static final String BUG_INSTANCE ="BugInstance";
     public static final String HOME = "HOME";
     public static final String REPOSITORY_DIR = "/.m2/repository";
+    public static final String BUG_CATEGORIES_ARG = "-bugCategories";
+    public static final String BUG_CATEGORIES_ARG_VAL = "SECURITY";
 
     //pre deploy
     public static final String FIND_SEC_BUGS_PRE_DEPLOY_SCRIPT_PATH = "FIND_SEC_BUGS_PRE_DEPLOY_SCRIPT_PATH";

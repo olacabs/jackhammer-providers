@@ -25,6 +25,7 @@
     "env": {
 	    "SUPPORTED_PLATFORM": "Ruby",
 	    "MAX_ALLOWED_SCANS": "5",
-	    "localSetup": "true"
+	    "OsType": "windows",
+	    "localSetup": "true",
     }
 }

@@ -2,7 +2,9 @@ package com.olacabs.jch.services.retirejs.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.*;
 
 import com.olacabs.jch.sdk.models.ScanRequest;
 import com.olacabs.jch.sdk.models.ScanResponse;
@@ -15,9 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ScanController implements ScanSpi {
 
-    public ProcessBuilder buildScanCommand(ScanRequest scanRequest) {
+    public ProcessBuilder buildScanCommand(final ScanRequest scanRequest) {
         ProcessBuilder builder = new ProcessBuilder();
-        ProcessBuilder npmInstallBuilder = new ProcessBuilder();
+        final ProcessBuilder npmInstallBuilder = new ProcessBuilder();
         npmInstallBuilder.command(Constants.NPM,Constants.INSTALL);
         npmInstallBuilder.directory(new File(scanRequest.getTarget()));
         Map<String, String> envs = builder.environment();
@@ -25,9 +27,28 @@ public class ScanController implements ScanSpi {
         try {
             tempFile = File.createTempFile(Constants.TEMP_FILE_PREFIX, Constants.TEMP_FILE_SUFFIX);
             scanRequest.setResultFile(tempFile);
-            Process process;
-            process = npmInstallBuilder.start();
-            process.waitFor();
+
+            final Duration timeout = Duration.ofMinutes(5);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            final Future<String> handler = executor.submit(new Callable() {
+                @Override
+                public String call() throws Exception {
+                    log.info("Started nmap install for scan id .....{} {} ",scanRequest.getScanId());
+                    Process process;
+                    process = npmInstallBuilder.start();
+                    process.waitFor();
+                    return "Success";
+                }
+            });
+            try {
+                handler.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                log.info("Completed nmap install for scan id .....{} {} ",scanRequest.getScanId());
+            } catch (TimeoutException e) {
+                handler.cancel(true);
+                log.info("TimeoutException while running nmap.....");
+            }
+            executor.shutdownNow();
+
         } catch (IOException e) {
             log.error("Temp file could not created");
         } catch (InterruptedException ie) {
@@ -44,9 +65,11 @@ public class ScanController implements ScanSpi {
         ScanResponse scanResponse = new ScanResponse();
         scanResponse.setStartTime(System.currentTimeMillis());
         try {
+            log.info("Started retired js scanning.....{} {} ");
             Process process;
             process = builder.start();
             process.waitFor();
+            log.info("Completed retired js scanning.....{} {} ");
         } catch (IOException io) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.IO_EXCEPTION);

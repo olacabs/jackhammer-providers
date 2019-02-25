@@ -2,7 +2,9 @@ package com.olacabs.jch.services.bandit.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.*;
 
 import com.olacabs.jch.sdk.models.ScanRequest;
 import com.olacabs.jch.sdk.models.ScanResponse;
@@ -33,23 +35,38 @@ public class ScanController implements ScanSpi {
         return builder;
     }
 
-    public ScanResponse executeScanCommand(ProcessBuilder builder) {
+    public ScanResponse executeScanCommand(final ProcessBuilder builder) {
         ScanResponse scanResponse = new ScanResponse();
         scanResponse.setStartTime(System.currentTimeMillis());
         try {
-
-            log.info("process execution started");
-            Process process;
-            process = builder.start();
-            process.waitFor();
-        } catch (IOException io) {
-            scanResponse.setStatus(Constants.FAILED_STATUS);
-            scanResponse.setFailedReasons(ExceptionMessages.IO_EXCEPTION);
-            log.error("IOException while running bandit", io);
+            final Duration timeout = Duration.ofMinutes(20);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            final Future<String> handler = executor.submit(new Callable() {
+                @Override
+                public String call() throws Exception {
+                    log.info("started scanning the repo.....");
+                    Process process;
+                    process = builder.start();
+                    process.waitFor();
+                    return "Success";
+                }
+            });
+            try {
+                handler.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+                log.info("scanning completed.....");
+            } catch (TimeoutException e) {
+                handler.cancel(true);
+                log.info("TimeoutException while cloning the repo.....");
+            }
+            executor.shutdownNow();
         } catch (InterruptedException ie) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.INTERRUPTED_EXCEPTION);
             log.error("InterruptedException while running bandit", ie);
+        } catch (ExecutionException ee) {
+            scanResponse.setStatus(Constants.FAILED_STATUS);
+            scanResponse.setFailedReasons(ExceptionMessages.INTERRUPTED_EXCEPTION);
+            log.error("InterruptedException while running bandit", ee);
         }
         return scanResponse;
     }

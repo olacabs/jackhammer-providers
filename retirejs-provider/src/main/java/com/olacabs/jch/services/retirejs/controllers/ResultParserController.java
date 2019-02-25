@@ -1,5 +1,6 @@
 package com.olacabs.jch.services.retirejs.controllers;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.olacabs.jch.sdk.models.Finding;
@@ -30,26 +31,39 @@ public class ResultParserController implements ResultParserSpi {
                 String file = parsedFinding.getFile();
                 FindingResult findingResult = parsedFinding.getResults().get(0);
                 List<Vulnerabilitiy> vulnerabilitiyList = findingResult.getVulnerabilities();
-
-                for (Vulnerabilitiy vulnerabilitiy : vulnerabilitiyList) {
-                    Finding finding = new Finding();
-                    Identifier identifier = vulnerabilitiy.getIdentifiers();
-                    String cve = "";
-                    if(identifier.getCVE()!=null && identifier.getCVE().size() > 0) cve = identifier.getCVE().get(0);
-                    finding.setTitle(identifier.getSummary());
-                    finding.setCveCode(cve);
-                    finding.setExternalLink(StringUtils.join(vulnerabilitiy.getInfo(), Constants.LINK_SEPARATOR));
-                    finding.setSeverity(StringUtils.capitalize(vulnerabilitiy.getSeverity()));
-                    finding.setFileName(file);
-                    finding.setToolName(Constants.PROVIDER_NAME);
-                    finding.setFingerprint(getFingerPrint(finding));
-                    findingList.add(finding);
+                if (vulnerabilitiyList != null) {
+                    for (Vulnerabilitiy vulnerabilitiy : vulnerabilitiyList) {
+                        Identifier identifier = vulnerabilitiy.getIdentifiers();
+                        if (identifier != null) {
+                            Finding finding = new Finding();
+                            String cve = "";
+                            if (identifier.getCVE() != null && identifier.getCVE().size() > 0)
+                                cve = identifier.getCVE().get(0);
+                            finding.setTitle(identifier.getSummary());
+                            finding.setCveCode(cve);
+                            finding.setExternalLink(StringUtils.join(vulnerabilitiy.getInfo(), Constants.LINK_SEPARATOR));
+                            finding.setSeverity(StringUtils.capitalize(vulnerabilitiy.getSeverity()));
+                            finding.setFileName(file);
+                            finding.setToolName(Constants.PROVIDER_NAME);
+                            finding.setFingerprint(getFingerPrint(finding));
+                            finding.setSolution(identifier.getAdvisory());
+                            findingList.add(finding);
+                        }
+                    }
                 }
             }
             scanResponse.setFindings(findingList);
             scanResponse.setStatus(Constants.COMPLETED_STATUS);
             scanResponse.getResultFile().delete();
             scanResponse.setResultFile(null);
+        } catch (JsonMappingException jsonMappingException) {
+            if (StringUtils.equals(jsonMappingException.getMessage(), ExceptionMessages.NO_CONTENT_MESSAGE)) {
+                scanResponse.setStatus(Constants.COMPLETED_STATUS);
+            } else {
+                scanResponse.setStatus(Constants.FAILED_STATUS);
+                scanResponse.setFailedReasons(ExceptionMessages.PARSING_EXCEPTION);
+                log.error("Exception while parsing retire results", jsonMappingException);
+            }
         } catch (IOException io) {
             scanResponse.setStatus(Constants.FAILED_STATUS);
             scanResponse.setFailedReasons(ExceptionMessages.SCAN_RESULT_FILE_NOT_FOUND);
@@ -61,8 +75,9 @@ public class ResultParserController implements ResultParserSpi {
         }
         return scanResponse;
     }
+
     private String getFingerPrint(Finding finding) {
-        StringBuilder  fingerPrint = new StringBuilder();
+        StringBuilder fingerPrint = new StringBuilder();
         fingerPrint.append(Constants.PROVIDER_NAME);
         fingerPrint.append(finding.getTitle());
         fingerPrint.append(finding.getCveCode());

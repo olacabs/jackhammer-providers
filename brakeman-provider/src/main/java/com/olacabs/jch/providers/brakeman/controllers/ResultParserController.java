@@ -1,5 +1,6 @@
 package com.olacabs.jch.providers.brakeman.controllers;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.olacabs.jch.providers.brakeman.common.Constants;
@@ -37,6 +38,14 @@ public class ResultParserController implements ResultParserSpi {
             scanResponse.setFindings(findingList);
             scanResponse.getResultFile().delete();
             scanResponse.setStatus(Constants.SCAN_COMPLETE);
+        } catch (JsonMappingException jsonMappingException) {
+            if (StringUtils.equals(jsonMappingException.getMessage(), ExceptionMessages.NO_CONTENT_MESSAGE)) {
+                scanResponse.setStatus(Constants.SCAN_COMPLETE);
+            } else {
+                scanResponse.setStatus(Constants.SCAN_FAIL);
+                scanResponse.setFailedReasons(ExceptionMessages.PARSING_EXCEPTION);
+                log.error("Exception while parsing brakeman results", jsonMappingException);
+            }
         } catch (IOException io) {
             scanResponse.setStatus(Constants.SCAN_FAIL);
             scanResponse.setFailedReasons(ExceptionMessages.IO_EXCEPTION);

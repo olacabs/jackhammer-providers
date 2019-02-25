@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 apt-get -y update
+apt-get -y update --fix-missing
+#setup host ip
+sh $WORKSPACE/scripts/docker-host.sh
+
 apt-get install -y make gcc zlib1g-dev 
 apt-get install -y ruby2.3-dev
 apt-get -y --fix-missing install ruby

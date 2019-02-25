@@ -1,6 +1,7 @@
 package com.olacabs.jch.services.bundleaudit.controllers;
 
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.olacabs.jch.sdk.models.Finding;
 import com.olacabs.jch.sdk.models.ScanResponse;
 import com.olacabs.jch.sdk.spi.ResultParserSpi;
@@ -38,7 +39,7 @@ public class ResultParserController implements ResultParserSpi {
                     String url = resultReader.readLine().substring(Constants.URL.length());
                     String title = resultReader.readLine().substring(Constants.TITLE.length());
                     String solution = resultReader.readLine().substring(Constants.SOLUTION.length());
-                    String fingerPrint = getFingerPrint(url,title,solution,description,severity,advisory);
+                    String fingerPrint = getFingerPrint(url, title, solution, description, severity, advisory);
                     //build finding record
                     finding.setTitle(title);
                     finding.setDescription(description);
@@ -52,6 +53,14 @@ public class ResultParserController implements ResultParserSpi {
                     findingList.add(finding);
                 }
             }
+        } catch (JsonMappingException jsonMappingException) {
+            if (StringUtils.equals(jsonMappingException.getMessage(), ExceptionMessages.NO_CONTENT_MESSAGE)) {
+                scanResponse.setStatus(Constants.COMPLETED_STATUS);
+            } else {
+                scanResponse.setStatus(Constants.FAILED_STATUS);
+                scanResponse.setFailedReasons(ExceptionMessages.PARSING_EXCEPTION);
+                log.error("Exception while parsing retire results", jsonMappingException);
+            }
         } catch (IOException io) {
             log.error("IOException while parsing bundle audit results", io);
             scanResponse.setStatus(Constants.FAILED_STATUS);
@@ -63,7 +72,7 @@ public class ResultParserController implements ResultParserSpi {
         return scanResponse;
     }
 
-    private String getFingerPrint(String url,String bugType,String solution,String description,String severity,String advisory) {
+    private String getFingerPrint(String url, String bugType, String solution, String description, String severity, String advisory) {
         StringBuilder fingerprint = new StringBuilder();
         fingerprint.append(url);
         fingerprint.append(bugType);
@@ -74,6 +83,7 @@ public class ResultParserController implements ResultParserSpi {
         fingerprint.append(Constants.PROVIDER_NAME);
         return DigestUtils.sha256Hex(fingerprint.toString());
     }
+
     public String getToolName() {
         return Constants.PROVIDER_NAME;
     }

@@ -15,4 +15,7 @@ public class Identifier {
     private String issue;
     private List<String> CVE;
     private String summary;
+    private String bug;
+    private String advisory;
+    private String release;
 }
