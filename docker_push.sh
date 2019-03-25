@@ -85,6 +85,12 @@ docker build -t truffle-hog-provider .
 docker tag truffle-hog-provider $DOCKER_USERNAME/truffle-hog-provider
 docker push $DOCKER_USERNAME/truffle-hog-provider
 
+cd ../exakat-provider
+mvn clean install
+docker build -t exakat-provider .
+docker tag exakat-provider $DOCKER_USERNAME/exakat-provider
+docker push $DOCKER_USERNAME/exakat-provider
+
 #pushing xanitizer
 #cd ../xanitizer-provider
 #docker build -t xanitizer-provider .

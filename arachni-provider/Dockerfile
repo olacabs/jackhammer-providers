@@ -6,6 +6,7 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get clean && apt-get update \
     && apt-get install -y --no-install-recommends git \
     && apt-get install -y --no-install-recommends iproute2 \
     && apt-get install -y --no-install-recommends openjdk-8-jdk \
+    && apt-get install -y inetutils-ping \
     && rm -rf /var/lib/apt/lists/*
 #RUN apt-get update 
 #RUN apt-get install -y openjdk-8-jdk
